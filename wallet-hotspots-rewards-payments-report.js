@@ -3,7 +3,7 @@
  * ryanp@splatspace.org
  * https://cryptotickle.me/ryanp
  * https://github.com/Pseudothink/helium-scripts
- * Version: 2021-11-05
+ * Version: 2021-11-07
  *
  * This script exports all Helium reward transactions over a specified period of time to per-hotspot CSV files, for all
  * hotspots owned by a specified Helium wallet.  It also saves files useful for reporting and making payments to hosts.
@@ -37,8 +37,9 @@
  *   A hotspotsHostsData JSON file: HotspotsHostsData_REPORT_START_DATE-REPORT_END_DATE-SCRIPT_RUN_DATE.json
  *      A copy of hotspotHostData, updated with information from all hotspots found for the specified owner.
  * 
- * TODO: Add support for splitting a hotspot's earnings between multiple hosts within the same time period.
  * TODO: Parameterize script configuration.
+ * TODO: Add support for splitting a hotspot's earnings between multiple hosts within the same time period.
+ * TODO: Suppress multiple warnings of "Unable to assign reward" or save them to a new default hotspotsHostsData entry.
  * 
  */
 
@@ -147,7 +148,7 @@ let hotspotsHostsData = [{
     "hostWallet": "Claire's Wallet Address",
     "fromDatetimeISO": "2019-01-01T00:00:00.000Z",
     "toDatetimeISO": "2099-01-01T00:00:00.000Z"
-}]
+}];
 
 // ==========================================================================
 //    End script configuration
@@ -410,8 +411,8 @@ function mergePayments(paymentsArray) {
             let deferredPaymentsJSON = []; // Array for JSON export file.
 
             for (const hotspot of hotspots.data) {
-                consoleLog("Requesting reward transactions for hotspot: " + hotspot.name + " (" + hotspot.address + ")");
-                consoleLog("(This may take a while...)");
+                consoleInfo(INFO_LOW, "Requesting reward transactions for hotspot: " + hotspot.name + " (" + hotspot.address + ")");
+                consoleInfo(INFO_LOW, "(This may take a while...)");
 
                 // https://github.com/helium/helium-js/blob/master/packages/http/src/resources/Transactions.ts
                 // https://github.com/helium/helium-js/blob/master/packages/http/src/models/Transaction.ts
@@ -419,7 +420,7 @@ function mergePayments(paymentsArray) {
                 const transactions = await hotspot.activity.list({
                     filterTypes: ["rewards_v1", "rewards_v2"]
                 });
-                //consoleLog(JSON.stringify(transactions));
+                //consoleInfo(INFO_LOW, JSON.stringify(transactions));
 
                 let iTransactions = 0;
                 let iTransactionPages = 0;
@@ -432,8 +433,8 @@ function mergePayments(paymentsArray) {
                         const transactionsPage = await transactions.take(TRANSACTIONS_PAGE_SIZE);
                         iTransactionsPageLength = transactionsPage.length;
 
-                        //consoleLog(JSON.stringify(transactionsPage));
-                        consoleLog("Processing reward transactions (Page " + (iTransactionPages + 1) + "): " + iTransactionsPageLength)
+                        //consoleInfo(INFO_LOW, JSON.stringify(transactionsPage));
+                        consoleInfo(INFO_LOW, "Processing reward transactions (Page " + (iTransactionPages + 1) + "): " + iTransactionsPageLength)
 
                         for (const transaction of transactionsPage) {
                             let transactionTime = DateTime.fromSeconds(transaction.time, { zone: "UTC" });  // Transaction time is in seconds, not milliseconds, UTC timezone.
@@ -519,6 +520,10 @@ function mergePayments(paymentsArray) {
                                             bRewardAssigned = true;
                                         } else {
                                             if (!bRewardAssigned) {
+                                                // TODO: This gets triggered repeatedly if a hotspot host entry exists for a specific timespan, but earnings 
+                                                // transactions are found outside that timespan.  Clean this up by creating a new, default host entry for 
+                                                // timespans before (or after) the existing one timespan, and issue a single warning instead.  Or just 
+                                                // repeated multiple warnings, instead.
                                                 consoleWarn("Unable to assign reward to a hotspot host entry: " + rewardAmountBigBalance + " (" + transactionTime.toUTC().toISO() + ")");
                                             }
                                         }
