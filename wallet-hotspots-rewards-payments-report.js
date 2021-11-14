@@ -1,9 +1,9 @@
 /*
  * Ryan Patridge
  * ryanp@splatspace.org
- * https://cryptotickle.me/ryanp
+ * http://cryptotickle.me/
  * https://github.com/Pseudothink/helium-scripts
- * Version: 2021-11-07
+ * Version: 2021-11-13
  *
  * This script exports all Helium reward transactions over a specified period of time to per-hotspot CSV files, for all
  * hotspots owned by a specified Helium wallet.  It also saves files useful for reporting and making payments to hosts.
