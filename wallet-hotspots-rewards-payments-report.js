@@ -3,7 +3,7 @@
  * ryanp@splatspace.org
  * http://cryptotickle.me/
  * https://github.com/Pseudothink/helium-scripts
- * Version: 2021-11-13
+ * Version: 2021-11-15
  *
  * This script exports all Helium reward transactions over a specified period of time to per-hotspot CSV files, for all
  * hotspots owned by a specified Helium wallet.  It also saves files useful for reporting and making payments to hosts.
@@ -37,7 +37,7 @@
  *   A hotspotsHostsData JSON file: HotspotsHostsData_REPORT_START_DATE-REPORT_END_DATE-SCRIPT_RUN_DATE.json
  *      A copy of hotspotHostData, updated with information from all hotspots found for the specified owner.
  * 
- * TODO: Parameterize script configuration.
+ * TODO: Parameterize the script configuration section.
  * TODO: Add support for splitting a hotspot's earnings between multiple hosts within the same time period.
  * TODO: Suppress multiple warnings of "Unable to assign reward" or save them to a new default hotspotsHostsData entry.
  * 
@@ -66,18 +66,18 @@ const WALLET_ADDRESS = "13shErS29gws7ikVxkb4s13PZ6sQLSY63xRKP8DEBww2qWFhUu5"; //
 
 // Note: I recommend using UTC time zone with start & end dates, as Helium transaction times are stored in UTC.  But as long as you consistently use the same time zone it shouldn't matter.
 // Dates must be specified using an ISO 8601 string. (See: https://en.wikipedia.org/wiki/ISO_8601)
-const REPORT_START_DATE_STRING = "2021-10-01T00:00:00.000Z"; // Set to the datetime at which to start reporting host earnings and payments (including this exact datetime).
-const REPORT_END_DATE_STRING = "2021-11-01T00:00:00.000Z"; // Set to the datetime at which to stop reporting host earnings and payments (excluding this exact datetime).
-const PAYMENT_MEMO = "20211101"; // Set to the string to use in payment transactions, up to 8 bytes.
-const PAYMENT_MINIMUM_AMOUNT = 0.4;  // Minimum amount of HNT necessary to create a payment transaction.
+const REPORT_START_DATE_STRING = "2021-11-01T00:00:00.000Z"; // The earliest transaction date to include in the report.
+const REPORT_END_DATE_STRING = "2021-12-01T00:00:00.000Z"; // Include transactions up to (but excluding) this date.
+const PAYMENT_MEMO = "20211201"; // Set to the string to use as the memo in payment transactions.  Up to 8 bytes.
+const PAYMENT_MINIMUM_AMOUNT = 0.4;  // Defer payments unless they are at least this number of HNT.
 
-const MAX_HOTSPOTS = 30;  // Set to the maximum number of hotspots for which to return reward transaction information.
-const MAX_TRANSACTIONS_PAGES = 300;  // Set to the maximum total number of search pages (of transactions) to return for a particular hotspot.
-const TRANSACTIONS_PAGE_SIZE = 50;  // Set to the number of transactions to return per search page, for a particular hotspot.
-const LOWEST_BLOCK_INDEX = 468000;  // Set to the lowest block from which to return search results.  Lowest possible value is 1 (the genesis block).
+const MAX_HOTSPOTS = 30;  // Limit for the number of hotspots to include in the report (in case of accidentally including a large number).
+const MAX_TRANSACTIONS_PAGES = 300;  // Limit for the maximum number of search pages (of transactions) to return for any single hotspot.
+const TRANSACTIONS_PAGE_SIZE = 50;  // The size of transaction pages requested from the search cursor.
+const LOWEST_BLOCK_INDEX = 468000;  // Limit results to those from this block index or higher.  Lowest possible value is 1 (the genesis block).
 
-const DISPLAY_INFO_LEVEL = 1;  // Set amount of status information to display: 0 = low, 1 = medium, 2 = verbose
-const DISPLAY_CONSOLE_COLORS = true;  // Set false for unformatted console output.
+const DISPLAY_INFO_LEVEL = 1;  // Amount of status information to display in stdout: 0 = low, 1 = medium, 2 = verbose
+const DISPLAY_CONSOLE_COLORS = true;  // Set false for unformatted stdout text.
 
 /*
  * hotspotsHostsData is an array storing the hotspot host information used to generate an earnings report and payment JSON files from 
