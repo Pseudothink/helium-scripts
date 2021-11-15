@@ -3,7 +3,7 @@
  * ryanp@splatspace.org
  * http://cryptotickle.me/
  * https://github.com/Pseudothink/helium-scripts
- * Version: 2021-11-15
+ * Version: 2021-11-15.02
  *
  * This script exports all Helium reward transactions over a specified period of time to per-hotspot CSV files, for all
  * hotspots owned by a specified Helium wallet.  It also saves files useful for reporting and making payments to hosts.
@@ -66,9 +66,9 @@ const WALLET_ADDRESS = "13shErS29gws7ikVxkb4s13PZ6sQLSY63xRKP8DEBww2qWFhUu5"; //
 
 // Note: I recommend using UTC time zone with start & end dates, as Helium transaction times are stored in UTC.  But as long as you consistently use the same time zone it shouldn't matter.
 // Dates must be specified using an ISO 8601 string. (See: https://en.wikipedia.org/wiki/ISO_8601)
-const REPORT_START_DATE_STRING = "2021-11-01T00:00:00.000Z"; // The earliest transaction date to include in the report.
-const REPORT_END_DATE_STRING = "2021-12-01T00:00:00.000Z"; // Include transactions up to (but excluding) this date.
-const PAYMENT_MEMO = "20211201"; // Set to the string to use as the memo in payment transactions.  Up to 8 bytes.
+const REPORT_START_DATE_STRING = "2021-10-25T00:00:00.000Z"; // The earliest transaction date to include in the report.
+const REPORT_END_DATE_STRING = "2021-11-01T00:00:00.000Z"; // Include transactions up to (but excluding) this date.
+const PAYMENT_MEMO = "20211101"; // Set to the string to use as the memo in payment transactions.  Up to 8 bytes.
 const PAYMENT_MINIMUM_AMOUNT = 0.4;  // Defer payments unless they are at least this number of HNT.
 
 const MAX_HOTSPOTS = 30;  // Limit for the number of hotspots to include in the report (in case of accidentally including a large number).
